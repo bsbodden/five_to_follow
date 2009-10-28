@@ -1,1 +1,2 @@
 trellis --version '>= 0.0.4'
+eventmachine --version '>= 0.12.8'

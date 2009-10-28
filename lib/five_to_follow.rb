@@ -67,6 +67,8 @@ module FiveToFollow
     end
   end
 
-  web_app = FiveToFollowApp.new
-  web_app.start 3000 if __FILE__ == $PROGRAM_NAME
+  if __FILE__ == $PROGRAM_NAME
+    web_app = FiveToFollowApp.new
+    web_app.start 3000
+  end
 end

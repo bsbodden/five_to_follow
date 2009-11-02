@@ -4,12 +4,20 @@ require 'trellis'
 include Trellis
 
 module FiveToFollow
+  # DataMapper.setup(:default, ENV['DATABASE_URL'] || 'sqlite3://db/my.db')
+  
   class FiveToFollowApp < Application
     home :search
   end
 
   class Search < Page
     pages :search_results
+    
+    def on_submit_from_search
+      term = params[:search_term]
+      logger.info "searching with term #{term}"
+      self
+    end
 
     template do
       xhtml_strict {
@@ -18,6 +26,12 @@ module FiveToFollow
         }
         body {
           h1 "Enter a search term to find folks to follow..."
+          text %[<trellis:form tid="search" method="post">]
+          p {
+            text %[<trellis:text_field tid="term"/>]
+            text %[<trellis:submit tid="title" value="Search"/>]
+          }
+          text %[</trellis:form>]
         }
       }
     end

@@ -1,7 +1,7 @@
 require 'rubygems'
 require 'trellis'
 require 'grackle'
-load 'hits.rb'
+require 'hits'
 
 
 include Trellis

@@ -1,10 +1,12 @@
 require 'rubygems'
 require 'trellis'
+require 'grackle'
+require 'hits'
+
 
 include Trellis
 
 module FiveToFollow
-  # DataMapper.setup(:default, ENV['DATABASE_URL'] || 'sqlite3://db/my.db')
   
   class FiveToFollowApp < Application
     home :search
@@ -12,10 +14,37 @@ module FiveToFollow
 
   class Search < Page
     pages :search_results
+    persistent :results
+    
+    def initialize
+      super
+      @client = Grackle::Client.new(:auth=>{:type=>:basic,:username=>'bsbodden',:password=>'valencia'})
+    end
     
     def on_submit_from_search
       term = params[:search_term]
       logger.info "searching with term #{term}"
+      response = @client[:v1].search? :q=> term
+
+      # graph of tweets
+      graph = Hits::Graph.new
+      
+      # add nodes to graph
+      response.results.each do |tweet|
+        graph.add_edge(tweet.from_user, tweet.to_user) if tweet.to_user
+        tweet.text.scan(/[^\A]@([A-Za-z0-9_]+)/).flatten.each do |to|
+          graph.add_edge(tweet.from_user, to)
+        end
+      end
+      
+      # calculate HITS on graph
+      hits = Hits::Hits.new(graph)
+      hits.compute_hits
+
+      @results = ''
+      @results << hits.top_authority_scores.join(',')
+      @results << hits.top_hub_scores.join(',')
+      
       self
     end
 
@@ -36,6 +65,9 @@ module FiveToFollow
             text %[<trellis:submit tid="title" value="Search"/>]
           }
           text %[</trellis:form>]
+          p {
+            text %[<trellis:value name="results"/>]
+          }
         }
       }
     end

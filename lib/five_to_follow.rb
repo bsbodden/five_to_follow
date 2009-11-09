@@ -32,9 +32,11 @@ module FiveToFollow
       response.results.each do |tweet|
         graph.add_edge(tweet.from_user, tweet.to_user) if tweet.to_user
         tweet.text.scan(/[^\A]@([A-Za-z0-9_]+)/).flatten.each do |to|
-          graph.add_edge(tweet.from_user, to)
+          graph.add_edge(tweet.from_user, to) if tweet.from_user != to
         end
       end
+      
+      logger.info "graph for #{term} => \n #{graph}"
       
       # calculate HITS on graph
       hits = Hits::Hits.new(graph)
@@ -43,6 +45,8 @@ module FiveToFollow
       @results = ''
       @results << hits.top_authority_scores.join(',')
       @results << hits.top_hub_scores.join(',')
+      
+      logger.info "results are #{@results}"
       
       self
     end

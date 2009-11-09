@@ -46,7 +46,7 @@ module FiveToFollow
       @results << hits.top_authority_scores.join(',')
       @results << hits.top_hub_scores.join(',')
       
-      logger.info "results are #{@results}"
+      logger.info "results for #{term} are #{@results}"
       
       self
     end

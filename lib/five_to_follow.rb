@@ -61,7 +61,7 @@ module FiveToFollow
           title "Welcome to FiveToFollow"
         }
         body {
-          h1 "Enter a search term to find folks to follow on Twitter..."
+          h1 "Let's find folks to follow on Twitter..."
           text %[<trellis:form tid="search" method="post">]
           p {
             text %[<trellis:text_field tid="term"/>]

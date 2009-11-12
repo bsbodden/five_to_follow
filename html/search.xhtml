@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xml:lang="en" lang="en" 
+      xmlns:trellis="http://trellisframework.org/schema/trellis_1_0_0.xsd" 
+      xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+  <title>Five To Follow</title>
+
+  <!-- Framework CSS -->
+  <link rel="stylesheet" href="styles/blueprint/screen.css" type="text/css" media="screen, projection" />
+  <link rel="stylesheet" href="styles/blueprint/print.css" type="text/css" media="print" />
+  <!--[if IE]><link rel="stylesheet" href="styles/blueprint/ie.css" type="text/css" media="screen, projection" /><![endif]-->
+  <link rel="stylesheet" href="styles/five_to_follow.css" type="text/css" media="screen, projection" />
+</head>
+	<body>
+		<div class="container">
+			<!-- ====== -->
+			<!-- Header -->
+			<!-- ====== -->		
+			<div id="header" class="span-24">
+				<div id="logo" class="prepend-6 span-12">
+					<h1><a href="." title="Five To Follow">Five To Follow :: The Easiest Way to Find People to Follow on Twitter!</a></h1>
+				</div>			
+			</div>
+			<!-- ======= -->
+			<!-- Content -->
+			<!-- ======= -->
+			<div id="content" class="span-24">
+				<div class="prepend-5 span-14">
+					<h2>
+						Find People Interested In...
+					</h2>
+				</div>
+				<div class="prepend-3 span-18">
+					<trellis:form tid="search" method="post">
+						<p>
+							<div class="span-14">
+						        <trellis:text_field tid="query" id="query" class="span-14"/>
+						    </div>
+							<div class="span-4 last">
+								<trellis:button tid="submit" id="go" title="Go!" type="submit">Go!</trellis:button>
+							</div>
+						</p>
+					</trellis:form>
+				</div>
+				<div id="results" class="span-24">
+                    <div id="user_list" class="span-24">
+	                    <trellis:value name="results"/>
+	                </div>
+					<div id="follow_or_not" class="prepend-5 span-14">
+						<div class="span-7">
+							<button id="follow" name="follow" title="Follow" type="submit">Follow</button>
+						</div>
+						<div class="span-7 last">
+							<button id="dont_follow" name="dont_follow" title="No, Thanks!" type="submit">No, Thanks!</button>
+						</div>
+					</div>		
+				</div>
+			</div>
+			<!-- ====== -->
+			<!-- Footer -->
+			<!-- ====== -->
+			<div id="footer" class="span-24">
+			</div>
+		</div>
+	</body>
+</html>
+
+

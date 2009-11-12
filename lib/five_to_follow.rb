@@ -9,6 +9,8 @@ module FiveToFollow
   
   class FiveToFollowApp < Application
     home :search
+    
+    map_static ['/styles', '/images']
   end
 
   class Search < Page
@@ -21,7 +23,7 @@ module FiveToFollow
     end
     
     def on_submit_from_search
-      term = params[:search_term]
+      term = params[:search_query]
       logger.info "searching with term #{term}"
       response = @client[:v1].search? :q=> term
 
@@ -44,50 +46,12 @@ module FiveToFollow
 
       @results = ''
       @results << hits.top_authority_scores.join(',')
+      @results << ','
       @results << hits.top_hub_scores.join(',')
       
       logger.info "results for #{term} are #{@results}"
       
       self
-    end
-
-    template do
-      tag!(:html, 
-           :xmlns => "http://www.w3.org/1999/xhtml", 
-           "xml:lang" => "en", 
-           :lang => "en",
-           "xmlns:trellis" => "http://trellisframework.org/schema/trellis_1_0_0.xsd") {
-        head {
-          title "Welcome to FiveToFollow"
-        }
-        body {
-          h1 "Let's find folks to follow on Twitter..."
-          text %[<trellis:form tid="search" method="post">]
-          p {
-            text %[<trellis:text_field tid="term"/>]
-            text %[<trellis:submit tid="title" value="Search"/>]
-          }
-          text %[</trellis:form>]
-          p {
-            text %[<trellis:value name="results"/>]
-          }
-        }
-      }
-    end
-  end
-
-  class SearchResults < Page
-    pages :search
-
-    template do
-      xhtml_strict {
-        head {
-          title "Twitter Users Found..."
-        }
-        body {
-          h1 "For the term 'blah' we found"
-        }
-      }
     end
   end
 

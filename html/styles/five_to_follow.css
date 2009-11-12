@@ -1,0 +1,105 @@
+/* ==========================================================================
+   LOGO
+   ========================================================================== */
+
+#header #logo h1 {
+	text-indent: -9999px;
+	background: transparent url('../images/52f_logo.png') no-repeat top left;
+	background-position: 0px 0px;
+	width: 470px;
+	height: 97px;
+}
+
+#header #logo h1 a {
+	display: block;
+	outline: none;
+}
+
+/* ==========================================================================
+   CONTENT
+   ========================================================================== */
+
+#content {
+	background: transparent url('../images/content_bg.png') no-repeat top left;
+	width: 950px;
+	height: 500px;
+}
+
+#content h2 {
+	width: 560px;
+	height: 100px;
+	border-style: none;
+	text-indent: -9999px;
+	background: url('../images/find_people_interested_in.png') no-repeat left top;	
+}
+
+/* ==========================================================================
+   SEARCH FORM
+   ========================================================================== */
+
+#content form input#query {
+	font-size: 3em;
+	padding: 5px;
+	border: 2px solid #F298C1;
+	color: #444;
+}
+
+#content form input#query:focus {
+	outline:0;
+}
+
+#content form button#go {
+	width: 160px;
+	height: 90px;
+	border-style: none;
+	text-indent: -9999px;
+	background: url('../images/go.png') no-repeat left top;
+}
+
+#content form button#go:hover {
+	background-position: left -90px;
+}
+
+#content form button#go:active {
+	background-position: left -180px;
+}
+
+/* ==========================================================================
+   FOLLOW BUTTON
+   ========================================================================== */
+
+#content #follow_or_not /*form*/ button#follow {
+	width: 216px;
+	height: 90px;
+	border-style: none;
+	text-indent: -9999px;
+	background: url('../images/follow.png') no-repeat left top;
+}
+
+#content #follow_or_not /*form*/ button#follow:hover {
+	background-position: left -90px;
+}
+
+#content #follow_or_not /*form*/ button#follow:active {
+	background-position: left -180px;
+}
+
+/* ==========================================================================
+   DON'T FOLLOW BUTTON
+   ========================================================================== */
+
+#content #follow_or_not /*form*/ button#dont_follow {
+	width: 300px;
+	height: 90px;
+	border-style: none;
+	text-indent: -9999px;
+	background: url('../images/dont_follow.png') no-repeat left top;
+}
+
+#content #follow_or_not /*form*/ button#dont_follow:hover {
+	background-position: left -90px;
+}
+
+#content #follow_or_not /*form*/ button#dont_follow:active {
+	background-position: left -180px;
+}

@@ -10,7 +10,7 @@ module FiveToFollow
   class FiveToFollowApp < Application
     home :search
     
-    map_static ['/styles', '/images']
+    map_static ['/styles', '/images'], '/html'
   end
 
   class Search < Page

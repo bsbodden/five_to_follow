@@ -23,7 +23,7 @@ module FiveToFollow
     end
     
     def on_submit_from_search
-      term = params[:search_query]
+      term = params[:search_query] || ""
       logger.info "searching with term #{term}"
       response = @client[:v1].search? :q=> term
 
@@ -53,6 +53,74 @@ module FiveToFollow
       
       self
     end
+    
+    template do
+      tag!(:html,
+           :xmlns => "http://www.w3.org/1999/xhtml",
+           "xml:lang" => "en",
+           :lang => "en",
+           "xmlns:trellis" => "http://trellisframework.org/schema/trellis_1_0_0.xsd") {
+        head {
+          title "Welcome to FiveToFollow"
+          link :rel => "stylesheet", :href => "styles/blueprint/screen.css", :type => "text/css", :media => "screen, projection"
+          link :rel => "stylesheet", :href => "styles/blueprint/print.css", :type => "text/css", :media => "print"
+          link :rel => "stylesheet", :href => "styles/five_to_follow.css", :type => "text/css", :media => "screen, projection"          
+        }
+        body {          
+      		div(:class => "container") {
+            # <!-- ====== -->
+            # <!-- Header -->
+            # <!-- ====== -->   
+            div.header!(:class => "span-24") {
+              div.logo!(:class => "prepend-6 span-12") {
+                h1 {
+                  a(:href => ".", :title => "Five To Follow") {
+                    text %[Five To Follow :: The Easiest Way to Find People to Follow on Twitter!]
+                  }
+                }
+              }
+            } 
+
+            # <!-- ======= -->
+            # <!-- Content -->
+            # <!-- ======= -->
+            div.content!(:class => "span-24") {
+              div(:class => "prepend-5 span-14") {
+                h2 "Find People Interested In..."
+              }
+              div(:class => "prepend-3 span-18") {
+                text %[<trellis:form tid="search" method="post">] 
+                  div(:class => "span-14") {
+                    text %[<trellis:text_field tid="query" id="query" class="span-14"/>]
+                  }
+                  div(:class => "span-4 last") {
+                    text %[<trellis:button tid="submit" id="go" title="Go!" type="submit">Go!</trellis:button>]
+                  }
+                text %[</trellis:form>]
+              }
+              div.results!(:class => "span-24") {
+                div.user_list!(:class => "span-24") {
+                 text %[<trellis:value name="results"/>]
+                }
+                div.follow_or_not!(:class => "prepend-5 span-14") {
+                  div(:class => "span-7") {
+                    button(:id => "follow", :name => "follow", :title => "Follow", :type => "submit") { "Follow" }
+                  }
+                  div(:class => "span-7 last") {
+                    button(:id => "dont_follow", :name => "dont_follow", :title => "No, Thanks!", :type => "submit") { "No, Thanks!" }
+                  }
+                }   
+              }
+            }
+            # <!-- ====== -->
+            # <!-- Footer -->
+            # <!-- ====== -->
+            div.footer!(:class => "span-24") {
+            }
+          }
+        }
+      }
+    end    
   end
 
   class Login < Page

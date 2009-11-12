@@ -14,7 +14,6 @@ module FiveToFollow
   end
 
   class Search < Page
-    pages :search_results
     persistent :results
     
     def initialize
@@ -121,21 +120,6 @@ module FiveToFollow
         }
       }
     end    
-  end
-
-  class Login < Page
-    pages :settings
-
-    template do
-      xhtml_strict {
-        head {
-          title "Login to FiveToFollow"
-        }
-        body {
-          h1 "Login Fields go here!"
-        }
-      }
-    end
   end
 
   class Settings < Page

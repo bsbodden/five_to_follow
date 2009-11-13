@@ -10,7 +10,13 @@ module FiveToFollow
   class FiveToFollowApp < Application
     home :search
     
-    map_static ['/styles', '/images'], 'html'
+    directories = ['/styles', '/javascript', '/images']
+    if ENV['RACK_ENV'] == 'production'
+      map_static directories, 'html'
+    else
+      map_static directories
+    end
+  
   end
 
   class Search < Page
@@ -24,17 +30,22 @@ module FiveToFollow
     def on_submit_from_search
       term = params[:search_query] || ""
       logger.info "searching with term #{term}"
-      response = @client[:v1].search? :q=> term
+      response = @client[:v1].search? :q => term, :rpp => 100 # results_per_page 
 
       # graph of tweets
       graph = Hits::Graph.new
       
-      # add nodes to graph
-      response.results.each do |tweet|
-        graph.add_edge(tweet.from_user, tweet.to_user) if tweet.to_user
-        tweet.text.scan(/[^\A]@([A-Za-z0-9_]+)/).flatten.each do |to|
-          graph.add_edge(tweet.from_user, to) if tweet.from_user != to
+      while response.next_page
+        logger.info "processing result page #{response.page}"
+        # add nodes to graph
+        response.results.each do |tweet|
+          graph.add_edge(tweet.from_user, tweet.to_user) if tweet.to_user
+          tweet.text.scan(/[^\A]@([A-Za-z0-9_]+)/).flatten.each do |to|
+            graph.add_edge(tweet.from_user, to) if tweet.from_user != to
+          end
         end
+        q, max_id, page = response.next_page.match(/\?page=(\d+)&max_id=(\d+)&rpp=100&q=(\S+)/).to_a.reverse
+        response = @client[:v1].search? :q => q, :page => page, :max_id => max_id, :rpp => 100
       end
       
       logger.info "graph for #{term} => \n #{graph}"
@@ -63,7 +74,11 @@ module FiveToFollow
           title "Welcome to FiveToFollow"
           link :rel => "stylesheet", :href => "styles/blueprint/screen.css", :type => "text/css", :media => "screen, projection"
           link :rel => "stylesheet", :href => "styles/blueprint/print.css", :type => "text/css", :media => "print"
-          link :rel => "stylesheet", :href => "styles/five_to_follow.css", :type => "text/css", :media => "screen, projection"          
+          link :rel => "stylesheet", :href => "styles/five_to_follow.css", :type => "text/css", :media => "screen, projection" 
+          
+          script(:type => "text/javascript", :src => "javascript/jquery.js") {}
+          script(:type => "text/javascript", :src => "javascript/interface/iutil.js") {}
+          script(:type => "text/javascript", :src => "javascript/interface/carousel.js") {}
         }
         body {          
           div(:class => "container") {
@@ -98,6 +113,25 @@ module FiveToFollow
                 text %[</trellis:form>]
               }
               div.results!(:class => "span-24") {
+                
+                div.carousel!(:class => "prepend-7 span-10") {
+                    a(:href => ".", :title => "developerworks") {
+                      img :src => "/images/twitter/developerworks.jpg", :width => "100%"
+                    }
+                    a(:href => ".", :title => "dhh") {
+                      img :src => "/images/twitter/dhh.jpg", :width => "100%"
+                    }
+                    a(:href => ".", :title => "headius") {
+                      img :src => "/images/twitter/headius.jpg", :width => "100%"
+                    }
+                    a(:href => ".", :title => "merbist") {
+                      img :src => "/images/twitter/merbist.jpg", :width => "100%"
+                    }
+                    a(:href => ".", :title => "starbuxman") {
+                      img :src => "/images/twitter/starbuxman.jpg", :width => "100%"
+                    }
+                }
+                
                 div.user_list!(:class => "span-24") {
                  text %[<trellis:value name="results"/>]
                 }
@@ -119,6 +153,18 @@ module FiveToFollow
           }
           script(:type => "text/javascript", :charset => "utf-8") do 
             %[
+            // jquery carousel
+            window.onload = function() {
+              $('#carousel').Carousel({
+                itemWidth: 48,
+              	itemHeight: 48,
+              	itemMinWidth: 48,
+              	items: 'a',
+              	reflections: .2,
+              	rotationSpeed: 1.0
+            });}              
+              
+            // get satisfaction
             var is_ssl = ("https:" == document.location.protocol);
             var asset_host = is_ssl ? "https://s3.amazonaws.com/getsatisfaction.com/" : "http://s3.amazonaws.com/getsatisfaction.com/";
             document.write(unescape("%3Cscript src='" + asset_host + "javascripts/feedback-v2.js' type='text/javascript'%3E%3C/script%3E"));

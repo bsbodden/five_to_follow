@@ -2,6 +2,9 @@ require 'rubygems'
 require 'trellis'
 require 'grackle'
 require 'hits'
+require 'ostruct'
+require 'methodchain'
+require 'net/http'
 
 include Trellis
 
@@ -16,7 +19,6 @@ module FiveToFollow
     else
       map_static directories
     end
-  
   end
 
   class Search < Page
@@ -35,32 +37,49 @@ module FiveToFollow
       # graph of tweets
       graph = Hits::Graph.new
       
+      @twitterers = {}
+      
       while response.next_page
         logger.info "processing result page #{response.page}"
-        # add nodes to graph
+        # add directed edges to graph
         response.results.each do |tweet|
-          graph.add_edge(tweet.from_user, tweet.to_user) if tweet.to_user
+          # TODO: add an edge to a vertex representing the topic itself (query)
+          
+          # add an edge if this is an explicitly directy tweet (has a to_user)
+          origin = get_user(tweet.from_user, tweet)
+          destination = get_user(tweet.to_user, tweet) if tweet.to_user
+          graph.add_edge(origin, destination) if destination
+         
+          # iterate over all mentions (@user) in hte tweet text
           tweet.text.scan(/[^\A]@([A-Za-z0-9_]+)/).flatten.each do |to|
-            graph.add_edge(tweet.from_user, to) if tweet.from_user != to
-          end
-        end
+            # if it is not a self mention and it is a valid user add an edge
+            if (tweet.from_user != to) && (is_twitter_user?(to))
+              destination = get_user(to, tweet)
+              graph.add_edge(origin, destination) 
+            end
+          end # each mention
+        end # each response
+        
+        # get the next page
         q, max_id, page = response.next_page.match(/\?page=(\d+)&max_id=(\d+)&rpp=100&q=(\S+)/).to_a.reverse
         response = @client[:v1].search? :q => q, :page => page, :max_id => max_id, :rpp => 100
       end
       
-      logger.info "graph for #{term} => \n #{graph}"
+      logger.debug "graph for #{term} => \n #{graph}"
       
       # calculate HITS on graph
       hits = Hits::Hits.new(graph)
       hits.compute_hits
 
       @results = ''
-      @results << hits.top_authority_scores.join(',')
-      @results << ','
-      @results << hits.top_hub_scores.join(',')
-      
-      logger.info "results for #{term} are #{@results}"
-      
+      hits.top_authority_scores.each do |hit|
+        html = %[<a href="http://twitter.com/#{hit.user}" title="#{hit.user}"><img src="#{hit.image || "/images/default_profile_normal.png"}" width="100%" /></a>]
+        @results << html
+      end
+            
+      logger.info "top 20 authorities for #{term} are #{hits.top_authority_scores(20).collect{|hit| hit.user}.join(', ')}"
+      logger.info "top 20 hubs for #{term} are #{hits.top_hub_scores(20).collect{|hit| hit.user}.join(', ')}"
+       
       self
     end 
     
@@ -81,10 +100,7 @@ module FiveToFollow
           script(:type => "text/javascript", :src => "javascript/interface/carousel.js") {}
         }
         body {          
-          div(:class => "container") {
-            # <!-- ====== -->
-            # <!-- Header -->
-            # <!-- ====== -->   
+          div(:class => "container") {  
             div.header!(:class => "span-24") {
               div.logo!(:class => "prepend-6 span-12") {
                 h1 {
@@ -95,9 +111,6 @@ module FiveToFollow
               }
             } 
     
-            # <!-- ======= -->
-            # <!-- Content -->
-            # <!-- ======= -->
             div.content!(:class => "span-24") {
               div(:class => "prepend-5 span-14") {
                 h2 "Find People Interested In..."
@@ -115,26 +128,9 @@ module FiveToFollow
               div.results!(:class => "span-24") {
                 
                 div.carousel!(:class => "prepend-7 span-10") {
-                    a(:href => ".", :title => "developerworks") {
-                      img :src => "/images/twitter/developerworks.jpg", :width => "100%"
-                    }
-                    a(:href => ".", :title => "dhh") {
-                      img :src => "/images/twitter/dhh.jpg", :width => "100%"
-                    }
-                    a(:href => ".", :title => "headius") {
-                      img :src => "/images/twitter/headius.jpg", :width => "100%"
-                    }
-                    a(:href => ".", :title => "merbist") {
-                      img :src => "/images/twitter/merbist.jpg", :width => "100%"
-                    }
-                    a(:href => ".", :title => "starbuxman") {
-                      img :src => "/images/twitter/starbuxman.jpg", :width => "100%"
-                    }
+                    text %[<trellis:value name="results"/>]
                 }
-                
-                div.user_list!(:class => "span-24") {
-                 text %[<trellis:value name="results"/>]
-                }
+              
                 div.follow_or_not!(:class => "prepend-5 span-14") {
                   div(:class => "span-7") {
                     button(:id => "follow", :name => "follow", :title => "Follow", :type => "submit") { "Follow" }
@@ -145,9 +141,7 @@ module FiveToFollow
                 }   
               }
             }
-            # <!-- ====== -->
-            # <!-- Footer -->
-            # <!-- ====== -->
+
             div.footer!(:class => "span-24") {
             }
           }
@@ -163,15 +157,28 @@ module FiveToFollow
               	reflections: .2,
               	rotationSpeed: 1.0
             });}              
-              
-            // get satisfaction
-            var is_ssl = ("https:" == document.location.protocol);
-            var asset_host = is_ssl ? "https://s3.amazonaws.com/getsatisfaction.com/" : "http://s3.amazonaws.com/getsatisfaction.com/";
-            document.write(unescape("%3Cscript src='" + asset_host + "javascripts/feedback-v2.js' type='text/javascript'%3E%3C/script%3E"));
             ]
           end          
         }
       }
+    end  
+    
+    def get_user(tweeter_name, tweet)
+      logger.debug "#{tweeter_name} ===> TEXT: #{tweet.text}, FROM: #{tweet.from_user}, IMAGE: #{tweet.profile_image_url})"
+      user = @twitterers[tweeter_name] 
+      unless user
+        user = OpenStruct.new(:user => tweeter_name, 
+                              :score => 0.0)
+        @twitterers[tweeter_name] = user
+      end  
+      unless user.image
+        user.image = tweet.profile_image_url if tweeter_name == tweet.from_user
+      end
+      user  
+    end   
+    
+    def is_twitter_user?(tweeter_name)
+      Net::HTTP.get_response(URI.parse("http://twitter.com/#{tweeter_name}"))['status'] == "200 OK"
     end    
   end
 
@@ -191,6 +198,6 @@ module FiveToFollow
 
   if __FILE__ == $PROGRAM_NAME
     web_app = FiveToFollowApp.new
-    web_app.start 3000
+    web_app.start 3005
   end
 end

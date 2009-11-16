@@ -178,7 +178,8 @@ module FiveToFollow
     end   
     
     def is_twitter_user?(tweeter_name)
-      Net::HTTP.get_response(URI.parse("http://twitter.com/#{tweeter_name}"))['status'] == "200 OK"
+      #Net::HTTP.get_response(URI.parse("http://twitter.com/#{tweeter_name}"))['status'] == "200 OK"
+      true
     end    
   end
 

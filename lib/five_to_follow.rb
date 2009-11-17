@@ -17,7 +17,7 @@ module FiveToFollow
   class FiveToFollowApp < Application
     home :search
     
-    directories = ['/styles', '/javascript', '/images']
+    directories = ['/styles', '/javascript', '/images', '/html']
     if ENV['RACK_ENV'] == 'production'
       map_static directories, 'html'
     else
@@ -80,8 +80,8 @@ module FiveToFollow
         @results << html
       end
             
-      logger.info "top 20 authorities for #{term} are #{hits.top_authority_scores(20).collect{|hit| hit.user}.join(', ')}"
-      logger.info "top 20 hubs for #{term} are #{hits.top_hub_scores(20).collect{|hit| hit.user}.join(', ')}"
+      logger.debug "top 20 authorities for #{term} are #{hits.top_authority_scores(20).collect{|hit| hit.user}.join(', ')}"
+      logger.debug "top 20 hubs for #{term} are #{hits.top_hub_scores(20).collect{|hit| hit.user}.join(', ')}"
        
       self
     end 
@@ -146,6 +146,11 @@ module FiveToFollow
             }
 
             div.footer!(:class => "span-24") {
+              iframe(:src => "html/featured_users.html", :class => "prepend-3 span-18", :width => "100%", :scrolling => "no") {
+                a(:href => "http://featuredusers.com/referral/pub-831/", :title => "Featured Users", :class => "prepend-6 span-12") {
+                  img(:src => "images/featured_users.jpg") 
+                }
+              }
             }
           }
           script(:type => "text/javascript", :charset => "utf-8") do 
@@ -160,8 +165,9 @@ module FiveToFollow
               	reflections: .2,
               	rotationSpeed: 1.0
             });}              
-            ]
-          end          
+            ]      
+          end
+          script(:type => "text/javascript", :src => "http://s3.amazonaws.com/getsatisfaction.com/javascripts/feedback-v2.js")
         }
       }
     end     

@@ -108,18 +108,28 @@
    CARROUSEL
    ========================================================================== */
 
-#carousel
-{
+#carousel {
 	width: 400px;
 	height: 200px;
 	left: 280px;
-/*	position: absolute;*/
-/*	top: 100px;
-	left: 50%;*/
-/*	margin-left: -350px;*/
 }
-#carousel a
-{
+
+#carousel a {
 	position: absolute;
 	width: 96px;
+}
+
+/*#carousel a img {
+	float:left;
+	margin-right:20px;
+	margin-bottom:10px;
+	border: 6px solid rgb(190, 190, 190);
+	-webkit-border-radius:5px;
+	-moz-border-radius:5px;	
+	-webkit-box-shadow: 5px 5px 5px rgba(0,0,0,.5);
+	-moz-box-shadow:5px 5px 5px rgba(0,0,0,.5);
+}*/
+
+#footer a img {
+	margin-top: 10px;
 }

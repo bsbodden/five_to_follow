@@ -1,3 +1,5 @@
+$: << File.dirname(__FILE__) unless $:.include? File.dirname(__FILE__)
+
 require 'rubygems'
 require 'trellis'
 require 'grackle'
@@ -5,9 +7,11 @@ require 'hits'
 require 'ostruct'
 require 'methodchain'
 require 'net/http'
+require 'twitterland'
+require 'twitter_utils'
 
 include Trellis
-
+  
 module FiveToFollow
   
   class FiveToFollowApp < Application
@@ -18,6 +22,7 @@ module FiveToFollow
       map_static directories, 'html'
     else
       map_static directories
+      logger.level = DEBUG
     end
   end
 
@@ -26,18 +31,17 @@ module FiveToFollow
     
     def initialize
       super
-      @client = Grackle::Client.new(:auth=>{:type=>:basic,:username=>'bsbodden',:password=>'valencia'})
+      @twitter_client = TwitterClient.new
+      @twitter_client.logger = logger
     end
     
     def on_submit_from_search
       term = params[:search_query] || ""
       logger.info "searching with term #{term}"
-      response = @client[:v1].search? :q => term, :rpp => 100 # results_per_page 
+      response = @twitter_client.search(term)
 
       # graph of tweets
       graph = Hits::Graph.new
-      
-      @twitterers = {}
       
       while response.next_page
         logger.info "processing result page #{response.page}"
@@ -46,23 +50,22 @@ module FiveToFollow
           # TODO: add an edge to a vertex representing the topic itself (query)
           
           # add an edge if this is an explicitly directy tweet (has a to_user)
-          origin = get_user(tweet.from_user, tweet)
-          destination = get_user(tweet.to_user, tweet) if tweet.to_user
+          origin = @twitter_client.get_user(tweet.from_user, tweet)
+          destination = @twitter_client.get_user(tweet.to_user, tweet) if tweet.to_user
           graph.add_edge(origin, destination) if destination
          
           # iterate over all mentions (@user) in hte tweet text
           tweet.text.scan(/[^\A]@([A-Za-z0-9_]+)/).flatten.each do |to|
             # if it is not a self mention and it is a valid user add an edge
-            if (tweet.from_user != to) && (is_twitter_user?(to))
-              destination = get_user(to, tweet)
-              graph.add_edge(origin, destination) 
+            if tweet.from_user != to
+              destination = @twitter_client.get_user(to, tweet)
+              graph.add_edge(origin, destination) if destination
             end
           end # each mention
         end # each response
         
         # get the next page
-        q, max_id, page = response.next_page.match(/\?page=(\d+)&max_id=(\d+)&rpp=100&q=(\S+)/).to_a.reverse
-        response = @client[:v1].search? :q => q, :page => page, :max_id => max_id, :rpp => 100
+        response = @twitter_client.next_page(response)
       end
       
       logger.debug "graph for #{term} => \n #{graph}"
@@ -161,26 +164,7 @@ module FiveToFollow
           end          
         }
       }
-    end  
-    
-    def get_user(tweeter_name, tweet)
-      logger.debug "#{tweeter_name} ===> TEXT: #{tweet.text}, FROM: #{tweet.from_user}, IMAGE: #{tweet.profile_image_url})"
-      user = @twitterers[tweeter_name] 
-      unless user
-        user = OpenStruct.new(:user => tweeter_name, 
-                              :score => 0.0)
-        @twitterers[tweeter_name] = user
-      end  
-      unless user.image
-        user.image = tweet.profile_image_url if tweeter_name == tweet.from_user
-      end
-      user  
-    end   
-    
-    def is_twitter_user?(tweeter_name)
-      #Net::HTTP.get_response(URI.parse("http://twitter.com/#{tweeter_name}"))['status'] == "200 OK"
-      true
-    end    
+    end     
   end
 
   class Settings < Page

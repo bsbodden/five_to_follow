@@ -151,6 +151,20 @@ module FiveToFollow
                   img(:src => "images/featured_users.jpg") 
                 }
               }
+
+              ul(:class => "font-upper") {
+                Page.subclasses.values.each { |page|
+                  li{ 
+                    text %[<trellis:page_link tpage="#{page.name}">#{page.name}</trellis:page_link>]
+                  }
+                }
+              }
+              
+              p(:class => "copyright") { 
+                text("&copy; 2009 - FiveToFollow is an ")
+                a(:href => "http://www.integrallis.com") { "Integrallis" }
+                text(" company") 
+              }
             }
           }
           script(:type => "text/javascript", :charset => "utf-8") do 

@@ -130,6 +130,40 @@
 	-moz-box-shadow:5px 5px 5px rgba(0,0,0,.5);
 }*/
 
+/* ==========================================================================
+   FOOTER
+   ========================================================================== */
+
 #footer a img {
 	margin-top: 10px;
 }
+
+.font-upper {
+    text-transform: uppercase;
+    font-size: 0.85em;    
+}
+
+#footer p {
+    text-align: center;
+    padding: 10px 0 0 0;
+    color: #c7c7c7;
+}
+
+#footer ul {
+    padding: 11px 0 0 0;
+    margin: 0;
+    list-style-type: none;
+   /* background: url(/images/200906/bg-footer.gif) center center no-repeat;*/
+    height: 27px;
+    text-align: center;
+    line-height: 15px;
+}
+
+#footer ul li {
+    display: inline;
+    padding: 0 5px;
+    margin: 0;
+}
+
+
+

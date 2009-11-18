@@ -7,7 +7,7 @@ module FiveToFollow
     
     def initialize
       @twitterers = {}
-      @client = Grackle::Client.new(:auth=>{:type=>:basic,:username=>'bsbodden',:password=>'valencia'})
+      @client = Grackle::Client.new()
     end
     
     def search(term)

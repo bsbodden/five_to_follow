@@ -1,0 +1,14 @@
+Consumer key
+xsHOZCBrzjITdhcTN7eaqQ
+
+Consumer secret
+rDZxPjvSBycm7nXE1aPRmWf2Oak2AhCXH12Wv738ugA
+
+Request token URL
+http://twitter.com/oauth/request_token
+
+Access token URL
+http://twitter.com/oauth/access_token
+
+Authorize URL
+http://twitter.com/oauth/authorize

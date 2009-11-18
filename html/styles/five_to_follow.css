@@ -146,14 +146,13 @@
 #footer p {
     text-align: center;
     padding: 10px 0 0 0;
-    color: #c7c7c7;
+    color: #000000;
 }
 
 #footer ul {
     padding: 11px 0 0 0;
     margin: 0;
     list-style-type: none;
-   /* background: url(/images/200906/bg-footer.gif) center center no-repeat;*/
     height: 27px;
     text-align: center;
     line-height: 15px;
@@ -163,6 +162,11 @@
     display: inline;
     padding: 0 5px;
     margin: 0;
+}
+
+#footer ul li a, a:link, a:visited, a:active {
+    cursor: pointer;
+    text-decoration: none;
 }
 
 

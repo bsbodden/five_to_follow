@@ -97,6 +97,7 @@ module FiveToFollow
           link :rel => "stylesheet", :href => "styles/blueprint/screen.css", :type => "text/css", :media => "screen, projection"
           link :rel => "stylesheet", :href => "styles/blueprint/print.css", :type => "text/css", :media => "print"
           link :rel => "stylesheet", :href => "styles/five_to_follow.css", :type => "text/css", :media => "screen, projection" 
+          link :rel => "shortcut icon", :href => "images/favicon.ico", :type => "image/x-icon"
           
           script(:type => "text/javascript", :src => "javascript/jquery.js") {}
           script(:type => "text/javascript", :src => "javascript/interface/iutil.js") {}
@@ -129,19 +130,26 @@ module FiveToFollow
                 text %[</trellis:form>]
               }
               div.results!(:class => "span-24") {
-                
+                text %[<trellis:unless test="results.nil?">]
                 div.carousel!(:class => "prepend-7 span-10") {
                     text %[<trellis:value name="results"/>]
                 }
-              
-                div.follow_or_not!(:class => "prepend-5 span-14") {
-                  div(:class => "span-7") {
-                    button(:id => "follow", :name => "follow", :title => "Follow", :type => "submit") { "Follow" }
-                  }
-                  div(:class => "span-7 last") {
-                    button(:id => "dont_follow", :name => "dont_follow", :title => "No, Thanks!", :type => "submit") { "No, Thanks!" }
-                  }
-                }   
+                text %[</trellis:unless>]
+                
+                text %[<trellis:if test="results.nil?">]
+                div(:class => "prepend-5 span-14") {
+                  img(:src => "images/quick_about.png")
+                }
+                text %[</trellis:if>]
+                
+                # div.follow_or_not!(:class => "prepend-5 span-14") {
+                #   div(:class => "span-7") {
+                #     button(:id => "follow", :name => "follow", :title => "Follow", :type => "submit") { "Follow" }
+                #   }
+                #   div(:class => "span-7 last") {
+                #     button(:id => "dont_follow", :name => "dont_follow", :title => "No, Thanks!", :type => "submit") { "No, Thanks!" }
+                #   }
+                # }   
               }
             }
 
@@ -152,13 +160,13 @@ module FiveToFollow
                 }
               }
 
-              ul(:class => "font-upper") {
-                Page.subclasses.values.each { |page|
-                  li{ 
-                    text %[<trellis:page_link tpage="#{page.name}">#{page.name}</trellis:page_link>]
-                  }
-                }
-              }
+              # ul(:class => "font-upper") {
+              #   Page.subclasses.values.each { |page|
+              #     li{ 
+              #       text %[<trellis:page_link tpage="#{page.name}">#{page.name}</trellis:page_link>]
+              #     }
+              #   }
+              # }
               
               p(:class => "copyright") { 
                 text("&copy; 2009 - FiveToFollow is an ")

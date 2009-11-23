@@ -140,25 +140,20 @@ module FiveToFollow
                 div(:class => "prepend-5 span-14") {
                   img(:src => "images/quick_about.png")
                 }
-                text %[</trellis:if>]
-                
-                # div.follow_or_not!(:class => "prepend-5 span-14") {
-                #   div(:class => "span-7") {
-                #     button(:id => "follow", :name => "follow", :title => "Follow", :type => "submit") { "Follow" }
-                #   }
-                #   div(:class => "span-7 last") {
-                #     button(:id => "dont_follow", :name => "dont_follow", :title => "No, Thanks!", :type => "submit") { "No, Thanks!" }
-                #   }
-                # }   
+                text %[</trellis:if>]   
               }
             }
 
             div.footer!(:class => "span-24") {
-              iframe(:src => "html/featured_users.html", :class => "prepend-3 span-18", :width => "100%", :scrolling => "no") {
-                a(:href => "http://featuredusers.com/referral/pub-831/", :title => "Featured Users", :class => "prepend-6 span-12") {
-                  img(:src => "images/featured_users.jpg") 
-                }
-              }
+              
+              iframe(:src => "html/adbrite.html", :class => "prepend-2 span-22", :width => "100%", :scrolling => "no")
+              
+              
+              # iframe(:src => "html/featured_users.html", :class => "prepend-3 span-18", :width => "100%", :scrolling => "no") {
+              #   a(:href => "http://featuredusers.com/referral/pub-831/", :title => "Featured Users", :class => "prepend-6 span-12") {
+              #     img(:src => "images/featured_users.jpg") 
+              #   }
+              # }
 
               # ul(:class => "font-upper") {
               #   Page.subclasses.values.each { |page|

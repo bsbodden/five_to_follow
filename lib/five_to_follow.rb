@@ -8,7 +8,10 @@ require 'ostruct'
 require 'methodchain'
 require 'net/http'
 require 'twitterland'
+require 'facets/duration'
+require 'facets/date'
 require 'twitter_utils'
+require 'db'
 
 include Trellis
   
@@ -38,51 +41,114 @@ module FiveToFollow
     def on_submit_from_search
       term = params[:search_query] || ""
       logger.info "searching with term #{term}"
-      response = @twitter_client.search(term)
-
-      # graph of tweets
-      graph = Hits::Graph.new
-      
-      while response.next_page
-        logger.info "processing result page #{response.page}"
-        # add directed edges to graph
-        response.results.each do |tweet|
-          # TODO: add an edge to a vertex representing the topic itself (query)
-          
-          # add an edge if this is an explicitly directy tweet (has a to_user)
-          origin = @twitter_client.get_user(tweet.from_user, tweet)
-          destination = @twitter_client.get_user(tweet.to_user, tweet) if tweet.to_user
-          graph.add_edge(origin, destination) if destination
-         
-          # iterate over all mentions (@user) in hte tweet text
-          tweet.text.scan(/[^\A]@([A-Za-z0-9_]+)/).flatten.each do |to|
-            # if it is not a self mention and it is a valid user add an edge
-            if tweet.from_user != to
-              destination = @twitter_client.get_user(to, tweet)
-              graph.add_edge(origin, destination) if destination
-            end
-          end # each mention
-        end # each response
-        
-        # get the next page
-        response = @twitter_client.next_page(response)
-      end
-      
-      logger.debug "graph for #{term} => \n #{graph}"
-      
-      # calculate HITS on graph
-      hits = Hits::Hits.new(graph)
-      hits.compute_hits
-
       @results = ''
-      hits.top_authority_scores.each do |hit|
-        html = %[<a href="http://twitter.com/#{hit.user}" title="#{hit.user}"><img src="#{hit.image || "/images/default_profile_normal.png"}" width="100%" /></a>]
-        @results << html
+      now = DateTime.now
+      
+      query = Model::Query.first(:terms => term)
+      
+      unless query && (query.last_evaluation > now.ago(Duration::DAY))
+        unless query # query not found in the database, create it
+          query = Model::Query.new(:terms => term, :version => 1, :last_request => now, :last_evaluation => now, :hits => 1)
+        else # the query results are too old, reevaluate and update access info
+          query.last_request = now
+          query.last_evaluation = now 
+          query.hits = query.hits + 1
+        end
+        query.save
+        
+        # search twitter for the terms
+        response = @twitter_client.search(term)
+
+        # graph of tweets
+        graph = Hits::Graph.new
+      
+        while response.next_page
+          logger.info "processing result page #{response.page}"
+          # add directed edges to graph
+          response.results.each do |tweet|
+            # TODO: add an edge to a vertex representing the topic itself (query)
+          
+            # add an edge if this is an explicitly directy tweet (has a to_user)
+            origin = @twitter_client.get_user(tweet.from_user, tweet)
+            destination = @twitter_client.get_user(tweet.to_user, tweet) if tweet.to_user
+            graph.add_edge(origin, destination) if destination
+         
+            # iterate over all mentions (@user) in hte tweet text
+            tweet.text.scan(/[^\A]@([A-Za-z0-9_]+)/).flatten.each do |to|
+              # if it is not a self mention and it is a valid user add an edge
+              if tweet.from_user != to
+                destination = @twitter_client.get_user(to, tweet)
+                graph.add_edge(origin, destination) if destination
+              end
+            end # each mention
+          end # each response
+        
+          # get the next page
+          response = @twitter_client.next_page(response)
+        end
+      
+        logger.debug "graph for #{term} => \n #{graph}"
+      
+        # calculate HITS on graph
+        hits = Hits::Hits.new(graph)
+        hits.compute_hits
+
+        # create response html for carousel
+        hits.top_authority_scores.each do |hit|
+          html = %[<a href="http://twitter.com/#{hit.user}" title="#{hit.user}"><img src="#{hit.image || "/images/default_profile_normal.png"}" width="100%" /></a>]
+          @results << html
+        end
+        
+        # save the authority scores for the query 
+        score = 1
+        hits.top_authority_scores(20).each do |hit| 
+          logger.debug "saving #{hit} to the database as authority"
+          authority_score = Model::AuthorityScore.new(:twitter_id => hit.user, :score => score, :query => query, :version => query.version)
+          score = score + 1
+          authority_score.save
+        end
+        
+        # save the hub scores for the query
+        score = 1
+        hits.top_hub_scores(20).each do |hit| 
+          logger.debug "saving #{hit} to the database as hub"
+          hub_score = Model::HubScore.new(:twitter_id => hit.user, :score => score, :query => query, :version => query.version)
+          score = score + 1
+          hub_score.save
+        end
+        
+        # save the users in the graph
+        graph.each_vertex do |twitter_user|
+          logger.debug "saving #{twitter_user.user}, #{twitter_user.image}"
+          profile = Model::Profile.first(:twitter_id => twitter_user.user)
+          unless profile
+            profile = Model::Profile.new(:twitter_id => twitter_user.user, 
+                                         :image => twitter_user.image, 
+                                         :confirmed => (!twitter_user.image.nil? && !twitter_user.image.empty?))
+            profile.save
+          else
+            # update the user avatar
+            if profile.image.nil? && !twitter_user.image.nil? && !twitter_user.image.empty?
+              profile.image = twitter_user.image
+              profile.save
+            end
+          end
+        end
+        
+        logger.debug "top 20 authorities for #{term} are #{hits.top_authority_scores(20).collect{|hit| hit.user}.join(', ')}"
+        logger.debug "top 20 hubs for #{term} are #{hits.top_hub_scores(20).collect{|hit| hit.user}.join(', ')}"
+      else # return the results from the database
+        logger.debug "retrieving cached results from database"
+        query.top_authority_scores.each do |hit|
+          html = %[<a href="http://twitter.com/#{hit.twitter_id}" title="#{hit.twitter_id}"><img src="#{hit.profile.image || "/images/default_profile_normal.png"}" width="100%" /></a>]
+          @results << html
+        end
+        # update the query access information
+        query.last_request = now
+        query.hits = query.hits + 1
+        query.save
       end
             
-      logger.debug "top 20 authorities for #{term} are #{hits.top_authority_scores(20).collect{|hit| hit.user}.join(', ')}"
-      logger.debug "top 20 hubs for #{term} are #{hits.top_hub_scores(20).collect{|hit| hit.user}.join(', ')}"
-       
       self
     end 
     

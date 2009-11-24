@@ -106,6 +106,7 @@ module FiveToFollow
         body {          
           div(:class => "container") {  
             div.header!(:class => "span-24") {
+              div.beta! {}
               div.logo!(:class => "prepend-6 span-12") {
                 h1 {
                   a(:href => ".", :title => "Five To Follow") {
@@ -121,23 +122,21 @@ module FiveToFollow
               }
               div(:class => "prepend-3 span-18") {
                 text %[<trellis:form tid="search" method="post">] 
-                  div(:class => "span-14") {
-                    text %[<trellis:text_field tid="query" id="query" class="span-14"/>]
-                  }
-                  div(:class => "span-4 last") {
-                    text %[<trellis:button tid="submit" id="go" title="Go!" type="submit">Go!</trellis:button>]
+                  div(:class => "span-18") {
+                    text %[<trellis:text_field tid="query" id="query" class="span-14" tabindex="1"/>]
+                    text %[<trellis:button tid="submit" id="search" title="Go!" type="submit" tabindex="2">Search</trellis:button>]
                   }
                 text %[</trellis:form>]
               }
               div.results!(:class => "span-24") {
                 text %[<trellis:unless test="results.nil?">]
-                div.carousel!(:class => "prepend-7 span-10") {
+                div.carousel!(:class => "prepend-7 span-10 last") {
                     text %[<trellis:value name="results"/>]
                 }
                 text %[</trellis:unless>]
                 
                 text %[<trellis:if test="results.nil?">]
-                div(:class => "prepend-5 span-14") {
+                div(:class => "prepend-5 span-14 last") {
                   img(:src => "images/quick_about.png")
                 }
                 text %[</trellis:if>]   
@@ -147,13 +146,6 @@ module FiveToFollow
             div.footer!(:class => "span-24") {
               
               iframe(:src => "html/adbrite.html", :class => "prepend-2 span-22", :width => "100%", :scrolling => "no")
-              
-              
-              # iframe(:src => "html/featured_users.html", :class => "prepend-3 span-18", :width => "100%", :scrolling => "no") {
-              #   a(:href => "http://featuredusers.com/referral/pub-831/", :title => "Featured Users", :class => "prepend-6 span-12") {
-              #     img(:src => "images/featured_users.jpg") 
-              #   }
-              # }
 
               # ul(:class => "font-upper") {
               #   Page.subclasses.values.each { |page|

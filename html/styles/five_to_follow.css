@@ -16,6 +16,19 @@
 }
 
 /* ==========================================================================
+   BETA INDICATOR
+   ========================================================================== */
+
+#beta {
+	position: absolute;
+	top: 0pt;
+	left: 0pt;
+	background: transparent url('../images/beta.png') no-repeat top left;
+	width: 151px;
+	height: 150px;
+}
+
+/* ==========================================================================
    CONTENT
    ========================================================================== */
 
@@ -38,70 +51,48 @@
    ========================================================================== */
 
 #content form input#query {
-	font-size: 3em;
-	padding: 5px;
-	border: 2px solid #F298C1;
+	padding: 8px 10px;
 	color: #444;
+	background: #fff;
+	padding: 8px 10px;
+	border: 1px solid #eee;
+	border-right-width: 0;
+	outline-width: 0;
+	font-size: 3em;	
+	-webkit-border-top-left-radius: 10px;
+	-webkit-border-bottom-left-radius: 10px;
+	-moz-border-radius-topleft: 10px;
+	-moz-border-radius-bottomleft: 10px;
+	border-top-left-radius: 10px;
+	border-bottom-left-radius: 10px;
 }
 
 #content form input#query:focus {
 	outline:0;
+	border-color: #fff;
 }
 
-#content form button#go {
-	width: 160px;
-	height: 90px;
-	border-style: none;
-	text-indent: -9999px;
-	background: url('../images/go.png') no-repeat left top;
+#content form button#search {
+	background: #bbb url('../images/search_bg.png') repeat-x 0 0;
+	padding: 8px 15px;
+	border: 1px solid #eee;
+	margin-left: -0.5em;
+	font-size: 3em;	
+	-webkit-border-top-right-radius: 10px;
+	-webkit-border-bottom-right-radius: 10px;
+	-moz-border-radius-topright: 10px;
+	-moz-border-radius-bottomright: 10px;	
+	border-top-right-radius: 10px;
+	border-bottom-right-radius: 10px;
+	color: #333;
+	outline: none;
+	text-decoration: none;
+	text-shadow: 0 1px 0 #fff;	
 }
 
-#content form button#go:hover {
-	background-position: left -90px;
-}
-
-#content form button#go:active {
-	background-position: left -180px;
-}
-
-/* ==========================================================================
-   FOLLOW BUTTON
-   ========================================================================== */
-
-#content #follow_or_not button#follow {
-	width: 216px;
-	height: 90px;
-	border-style: none;
-	text-indent: -9999px;
-	background: url('../images/follow.png') no-repeat left top;
-}
-
-#content #follow_or_not button#follow:hover {
-	background-position: left -90px;
-}
-
-#content #follow_or_not button#follow:active {
-	background-position: left -180px;
-}
-
-/* ==========================================================================
-   DON'T FOLLOW BUTTON
-   ========================================================================== */
-
-#content #follow_or_not button#dont_follow {
-	width: 300px;
-	height: 90px;
-	border-style: none;
-	text-indent: -9999px;
-	background: url('../images/dont_follow.png') no-repeat left top;
-}
-
-#content #follow_or_not button#dont_follow:hover {
-	background-position: left -90px;
-}
-
-#content #follow_or_not  button#dont_follow:active {
-	background-position: left -180px;
+#content form button#search::-moz-focus-inner {
+	padding: 0;
+	border: 0;
 }
 
 /* ==========================================================================
@@ -118,17 +109,6 @@
 	position: absolute;
 	width: 96px;
 }
-
-/*#carousel a img {
-	float:left;
-	margin-right:20px;
-	margin-bottom:10px;
-	border: 6px solid rgb(190, 190, 190);
-	-webkit-border-radius:5px;
-	-moz-border-radius:5px;	
-	-webkit-box-shadow: 5px 5px 5px rgba(0,0,0,.5);
-	-moz-box-shadow:5px 5px 5px rgba(0,0,0,.5);
-}*/
 
 /* ==========================================================================
    FOOTER
@@ -168,6 +148,3 @@
     cursor: pointer;
     text-decoration: none;
 }
-
-
-

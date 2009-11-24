@@ -8,14 +8,36 @@ module Model
   adapter = DataMapper.setup(:default, ENV['DATABASE_URL'] || 'sqlite3://db/my.db')
   adapter.resource_naming_convention = DataMapper::NamingConventions::Resource::UnderscoredAndPluralizedWithoutModule
   
-  class Search
+  class User
+    include DataMapper::Resource
+    
+    property :id, Integer, :serial => true
+    property :twittername, String
+
+    property :email, String, :format => :email_address
+    property :created_at, DateTime
+    property :updated_at, DateTime
+    
+    has n, :articles
+  
+    def to_s
+      "#{@last}, #{@first} (#{@email})"
+    end
+  end
+    
+  class Queries
     include DataMapper::Resource
     
     property :id, Integer, :serial => true 
-    property :term, String, :nullable => false
+    property :terms, String, :nullable => false
+    property :hits, Integer
+    property :last_request, DateTime
+    property :last_evaluation, DateTime
     property :created_at, DateTime
     property :updated_at, DateTime
   end
+  
+  class 
   
   class Hub
     include DataMapper::Resource

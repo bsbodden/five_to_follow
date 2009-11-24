@@ -1,6 +1,8 @@
 trellis --version '>= 0.0.6'
 eventmachine --version '>= 0.12.8'
 grackle --version '>= 0.1.6'
+stream --version '>= 0.5' --source gems.rubyforge.org
+rgl --version '>=0.4.0'
 hits --version '>=0.0.2'
 methodchain --version '>=0.4.2'
 twitterland --version '>=0.4.0'

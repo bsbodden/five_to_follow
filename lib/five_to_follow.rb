@@ -162,6 +162,9 @@ module FiveToFollow
           title "Welcome to FiveToFollow"
           link :rel => "stylesheet", :href => "styles/blueprint/screen.css", :type => "text/css", :media => "screen, projection"
           link :rel => "stylesheet", :href => "styles/blueprint/print.css", :type => "text/css", :media => "print"
+          text %[<!--[if IE]>]
+          link :rel => "stylesheet", :href => "styles/blueprint/ie.css", :type => "text/css", :media => "screen, projection"
+          text %[<![endif]-->]
           link :rel => "stylesheet", :href => "styles/five_to_follow.css", :type => "text/css", :media => "screen, projection" 
           link :rel => "shortcut icon", :href => "images/favicon.ico", :type => "image/x-icon"
           
